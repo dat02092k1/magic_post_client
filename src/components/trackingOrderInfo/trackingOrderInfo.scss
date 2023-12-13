@@ -1,0 +1,246 @@
+.parcel-information {
+  display: flex;
+  flex-direction: column;
+  padding: 0 1rem;
+  position: relative;
+
+  .boxes {
+    background-color: #fff;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 3fr;
+    border: 1px solid black;
+    flex: 1;
+    margin-top: 1rem;
+    .box,
+    .box-3,
+    .box-4 {
+      border: 1px solid black;
+      p {
+        font-size: 1.3rem;
+        margin: 0;
+        // color: #7d7c7c;
+        // font-weight: 500;
+      }
+    }
+
+    .box {
+      padding: 7px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      .code {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
+    .box-3 {
+      .section {
+        padding: 7px;
+        .parcel-type {
+          display: flex;
+          gap: 5px;
+          flex-direction: column;
+          margin-bottom: 5px;
+          .check-box-group {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            label {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              gap: 0.5rem;
+              font-size: 1.1rem;
+              .input[type="checkbox"] {
+                display: none;
+              }
+
+              /* Style for the custom checkbox */
+              .custom-checkbox {
+                display: inline-block;
+                width: 15px;
+                height: 15px;
+                border: 2px solid #333;
+                border-radius: 4px;
+                position: relative;
+                cursor: pointer;
+              }
+
+              /* Style for the custom checkmark */
+              .custom-checkbox::after {
+                content: "";
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 10px;
+                height: 10px;
+                background-color: #333;
+                border-radius: 2px;
+                opacity: 0;
+              }
+
+              /* Show the checkmark when checkbox is checked */
+              .input[type="checkbox"]:checked + .custom-checkbox::after {
+                opacity: 1;
+              }
+            }
+          }
+        }
+        .parcel-content-value-table {
+          tr {
+            td:first-child,
+            td:last-child {
+              max-width: 100px;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+          }
+        }
+        &:first-of-type {
+          border-bottom: 2px solid black;
+        }
+        .sender-signature {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          .signature {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+          }
+        }
+      }
+      .sender-instruction {
+        padding: 7px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        border-bottom: 2px solid black;
+        .check-box-group {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          label {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+            overflow: hidden;
+            .input[type="checkbox"] {
+              display: none;
+            }
+
+            /* Style for the custom checkbox */
+            .custom-checkbox {
+              display: inline-block;
+              width: 15px;
+              height: 15px;
+              border: 2px solid #333;
+              border-radius: 4px;
+              position: relative;
+              cursor: pointer;
+            }
+
+            /* Style for the custom checkmark */
+            .custom-checkbox::after {
+              content: "";
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              width: 10px;
+              height: 10px;
+              background-color: #333;
+              border-radius: 2px;
+              opacity: 0;
+            }
+
+            /* Show the checkmark when checkbox is checked */
+            .input[type="checkbox"]:checked + .custom-checkbox::after {
+              opacity: 1;
+            }
+          }
+        }
+      }
+    }
+
+    .box-4 {
+      display: flex;
+      flex-direction: column;
+      .section {
+        display: grid;
+        grid-template-columns: 7fr 4fr;
+        .left {
+          border-right: 2px solid black;
+          .delivery-fare,
+          .recipient-fare {
+            padding: 7px;
+            .fare {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              p {
+                font-size: 1.2rem;
+              }
+              &:last-of-type {
+                font-weight: bold;
+              }
+            }
+          }
+          .delivery-fare {
+            border-bottom: 2px solid black;
+          }
+        }
+        .right {
+          display: flex;
+          flex-direction: column;
+          .parcel-weight {
+            padding: 5px;
+            border-bottom: 2px solid black;
+            .weight {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              p {
+                font-size: 1.2rem;
+              }
+            }
+          }
+          .parcel-note {
+            padding: 7px;
+            flex: 1;
+          }
+        }
+      }
+      .section {
+        height: 100%;
+        .parcel-approval {
+          padding: 7px;
+          border-right: 2px solid black;
+          border-top: 2px solid black;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          // justify-content: space-between;
+          flex: 1;
+          height: 100%;
+        }
+        .delivery-date {
+          padding: 7px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          border-top: 2px solid black;
+          p:not(:first-child) {
+            font-size: 1.2rem;
+          }
+        }
+      }
+    }
+  }
+}

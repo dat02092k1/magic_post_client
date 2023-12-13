@@ -1,4 +1,9 @@
-import { useDispatch, useSelector } from 'react-redux'
+import { createTypedHooks } from 'easy-peasy';
 
-export const useAppDispatch = useDispatch
-export const useAppSelector = useSelector
+const typedHooks = createTypedHooks();
+
+export const useStoreActions = typedHooks.useStoreActions;
+export const useStoreDispatch = typedHooks.useStoreDispatch;
+export const useStoreState = typedHooks.useStoreState;
+
+ 
