@@ -13,3 +13,9 @@ export const deleteOrder = async (orderId) => {
 export const getOrderById = async (orderId) => {
     return api.get(`${UtilConstants.baseUrl}/orders/${orderId}`)
 }
+export const getOrderByCondition = async (condition) => {
+    return api.post(UtilConstants.baseUrl + '/orders', condition);
+}
+export const updateOrder = async (ordersData) => {
+    return api.post(`${UtilConstants.baseUrl}/orders-status`, ordersData)
+}

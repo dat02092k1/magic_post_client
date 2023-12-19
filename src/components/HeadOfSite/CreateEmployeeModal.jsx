@@ -1,9 +1,25 @@
 import { PlusCircleTwoTone } from "@ant-design/icons";
-import { Button, Divider, Form, Input, Modal, Select, Typography } from "antd";
+import { PlusOutlined, LoadingOutlined } from '@ant-design/icons';
+import { Button, Divider, Form, Input, Modal, Select, Typography, Upload, message } from "antd";
 import { useForm } from "antd/es/form/Form";
+import { useState } from "react";
+import { useStoreActions, useStoreState } from "../../store/hook";
+import { createEmployee, getEmployeeById } from "../../repository/employee/employee";
+
+const getBase64 = (img, callback) => {
+  const reader = new FileReader();
+  reader.addEventListener('load', () => callback(reader.result));
+  reader.readAsDataURL(img);
+};
 
 const CreateEmployeeModal = ({ isModalOpen, setIsModalOpen }) => {
   const [form] = useForm();
+  const [messageApi, contextHolder] = message.useMessage();
+  const [isLoading, setIsLoading] = useState(false);
+  const [image, setImage] = useState(null);
+  const currentUser = useStoreState((state) => state.currentUser);
+  // Get all employees from API
+  const fetchEmployees = useStoreActions((actions) => actions.fetchEmployeesByDepartment);
 
   // Handle modal
   const handleOk = () => {
@@ -13,77 +29,73 @@ const CreateEmployeeModal = ({ isModalOpen, setIsModalOpen }) => {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
-  const onHandleFinish = (values) => {
-    console.log(values);
+  const onHandleFinish = async (values) => {
+    setIsLoading(true);
+    currentUser.role === "headTransaction"
+      ? (values.role = "transactionStaff")
+      : (values.role = "gatheringStaff");
+    const data = {
+      name: values.employeeName,
+      departmentId: currentUser.workDepartment,
+      email: values.employeeEmail,
+      password: values.employeePassword,
+      role: values.role,
+      gender: values.employeeGender,
+      phone: values.employeePhoneNumber,
+    };
+    try {
+      const res = await createEmployee(data, image);
+      if (res.status === 201) {
+        fetchEmployees(currentUser.workDepartment);
+        messageApi.success("Tạo nhân viên thành công");
+        setIsLoading(false);
+        setIsModalOpen(false);
+        setImage(null);
+        setPreviewImage('');
+        form.resetFields();
+      }
+    } catch (error) {
+      if (error.response.data.message === "this user existed") {
+        messageApi.error("Email đã tồn tại");
+      } else if (
+        error.response.data.message === "this gathering point already exists"
+      ) {
+        messageApi.error("Điểm đã tồn tại");
+      } else messageApi.error("Đã có lỗi xảy ra");
+      setIsLoading(false);
+      console.log(error.response.data.message);
+    }
   };
 
-  const provinces = [
-    "An Giang",
-    "Bà Rịa-Vũng Tàu",
-    "Bạc Liêu",
-    "Bắc Giang",
-    "Bắc Kạn",
-    "Bắc Ninh",
-    "Bến Tre",
-    "Bình Dương",
-    "Bình Định",
-    "Bình Phước",
-    "Bình Thuận",
-    "Cà Mau",
-    "Cao Bằng",
-    "Cần Thơ",
-    "Đà Nẵng",
-    "Đắk Lắk",
-    "Đắk Nông",
-    "Điện Biên",
-    "Đồng Nai",
-    "Đồng Tháp",
-    "Gia Lai",
-    "Hà Giang",
-    "Hà Nam",
-    "Hà Nội",
-    "Hà Tĩnh",
-    "Hải Dương",
-    "Hải Phòng",
-    "Hậu Giang",
-    "Hòa Bình",
-    "Hưng Yên",
-    "Khánh Hòa",
-    "Kiên Giang",
-    "Kon Tum",
-    "Lai Châu",
-    "Lạng Sơn",
-    "Lào Cai",
-    "Lâm Đồng",
-    "Long An",
-    "Nam Định",
-    "Nghệ An",
-    "Ninh Bình",
-    "Ninh Thuận",
-    "Phú Thọ",
-    "Phú Yên",
-    "Quảng Bình",
-    "Quảng Nam",
-    "Quảng Ngãi",
-    "Quảng Ninh",
-    "Quảng Trị",
-    "Sóc Trăng",
-    "Sơn La",
-    "Tây Ninh",
-    "Thái Bình",
-    "Thái Nguyên",
-    "Thanh Hóa",
-    "Thừa Thiên Huế",
-    "Tiền Giang",
-    "TP Hồ Chí Minh",
-    "Trà Vinh",
-    "Tuyên Quang",
-    "Vĩnh Long",
-    "Vĩnh Phúc",
-    "Yên Bái",
-  ];
+  // Handle upload image
+  const [previewImage, setPreviewImage] = useState('');
+  const handlePreview = async (file) => {
+    console.log(file);
+  };
+  const handleChange = (info) => {
+    console.log(info);
+    setImage(info.fileList[0].originFileObj);
+    console.log(image);
+    getBase64(info.fileList[0].originFileObj, (imageUrl) => {
+      setPreviewImage(imageUrl);
+    });
+  }
+  const uploadButton = (
+    <div>
+      <div
+        style={{
+          marginTop: 8,
+        }}
+      >
+        Upload
+      </div>
+    </div>
+  );
 
+  // return 
   return (
+  <>
+    {contextHolder}
     <Modal
       title={
         <>
@@ -102,6 +114,23 @@ const CreateEmployeeModal = ({ isModalOpen, setIsModalOpen }) => {
       <div className="w-full h-full pb-6">
         <Form form={form} onFinish={onHandleFinish}>
           <h2 className="py-3 text-xl font-semibold">Thông tin nhân viên</h2>
+          <Upload
+          name="avatar"
+          listType="picture-circle"
+          className="avatar-uploader"
+          showUploadList={false}
+          onChange={handleChange}
+          onPreview={handlePreview}>
+          {previewImage ? (
+          <img
+            src={previewImage}
+            alt="avatar"
+            style={{
+              width: '100%',
+            }}
+          />) : (uploadButton)}
+          </Upload>
+          <h3 className="py-3 text-xl font-semibold">Nơi làm việc: {currentUser.workDepartment.address}</h3>
           <div className="grid w-full col-span-8 gap-x-6">
             <div className="col-span-4">
               <Form.Item name="employeeName">
@@ -123,7 +152,7 @@ const CreateEmployeeModal = ({ isModalOpen, setIsModalOpen }) => {
             </div>
             <div className="col-span-4 col-start-5">
               <Form.Item name="employeeAddress">
-                <Input size="large" placeholder="Địa chỉ nơi làm" type="text" />
+                <Input size="large" placeholder="Địa chỉ nơi cư trú" type="text" />
               </Form.Item>
               <Form.Item
                 name="employeePhoneNumber"
@@ -157,13 +186,14 @@ const CreateEmployeeModal = ({ isModalOpen, setIsModalOpen }) => {
           </div>
 
           <Form.Item noStyle>
-            <Button type="primary" htmlType="submit" className="float-right">
+            <Button type="primary" htmlType="submit" loading={isLoading} className="float-right">
               Tạo
             </Button>
           </Form.Item>
         </Form>
       </div>
     </Modal>
+  </>
   );
 };
 

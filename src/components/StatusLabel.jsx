@@ -12,7 +12,7 @@ const StatusLabel = ({ status }) => {
       statusColor = "#f3a638";
       break;
     case "rejected":
-      statusLabel = "Đã hủy";
+      statusLabel = "Chuyển tiếp thất bại";
       statusColor = "#e3503e";
       break;
     default:

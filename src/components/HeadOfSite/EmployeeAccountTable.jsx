@@ -1,21 +1,34 @@
 import {
   DeleteOutlined,
+  LoadingOutlined,
   PlusOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
-import { Button, Input, Popconfirm, Space, Table, Typography } from "antd";
-import { useRef, useState } from "react";
+import { Button, Input, Popconfirm, Space, Table, Typography, Upload, message } from "antd";
+import { useRef, useState, useEffect } from "react";
 import Highlighter from "react-highlight-words";
-
 import { NavLink } from "react-router-dom";
-
+import { useStoreActions, useStoreState } from "../../store/hook";
 import CreateEmployeeModal from "./CreateEmployeeModal";
+import { deleteEmployee, createEmployeeFromFile } from "../../repository/employee/employee";
+
 const EmployeeAccountTable = () => {
+  const currentUser = useStoreState((state) => state.currentUser);
+  const [messageApi, contextHolder] = message.useMessage();
   const searchInput = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Get all employees from API
+  const fetchEmployees = useStoreActions((actions) => actions.fetchEmployeesByDepartment);
+
+  useEffect(() => {
+    fetchEmployees(currentUser.workDepartment);
+  }, []);
+  const employees = useStoreState((state) => state.employees);
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
@@ -25,6 +38,37 @@ const EmployeeAccountTable = () => {
   const handleReset = (clearFilters) => {
     clearFilters();
     setSearchText("");
+  };
+  const handleUpload = async (file) => {
+    setIsLoading(true);
+    console.log(file);
+    try {
+      const res = await createEmployeeFromFile(file);
+      if (res.status === 201) {
+        messageApi.success("Thêm nhân viên thành công");
+        setIsLoading(false);
+        fetchEmployees(currentUser.departmentId);
+      }
+    } catch (error) {
+      setIsLoading(false);
+      console.log(error);
+      messageApi.error("Đã có lỗi xảy ra");
+    }
+  }
+
+  // Handle delete employee
+  const handleDelete = async (id) => {
+    setIsLoading(true);
+    try {
+      const res = await deleteEmployee(id);
+      if (res.status === 200) {
+        messageApi.success("Xóa thành công");
+        setIsLoading(false);
+        fetchEmployees(currentUser.workDepartment);
+      }
+    } catch (error) {
+      messageApi.error("Đã có lỗi xảy ra");
+    }
   };
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({
@@ -119,91 +163,43 @@ const EmployeeAccountTable = () => {
   });
   const columns = [
     {
-      title: "STT",
-      dataIndex: "id",
-      width: "6%",
-      className: "text-center font-bold",
-      sorter: (a, b) => a.id - b.id,
-    },
-    {
       title: "Tên nhân viên",
       dataIndex: "name",
-      width: "20%",
+      width: "15%",
       render: (value, record) => {
-        console.log(record.id);
         return (
-          <NavLink to={`/head/collection-point/manage-account/${record.id}`}>
+          <NavLink to={`/head/manage-account/${record._id}`}>
             {value}
           </NavLink>
         );
       },
     },
     {
-      title: "Email",
-      dataIndex: "email",
-      width: "20%",
-    },
-    {
-      title: "Mật khẩu",
-      dataIndex: "password",
-      width: "15%",
-    },
-
-    {
-      title: "Địa chỉ nơi làm việc",
-      dataIndex: "site_address",
-      filters: [
-        {
-          text: "Hồ Chí Minh",
-          value: "Thành phố Hồ Chí Minh",
-          children: [
-            {
-              text: "Quận 1",
-              value: "Quận 1",
-            },
-          ],
-        },
-        {
-          text: "Hà Nội",
-          value: "Thành phố Hà Nội",
-        },
-      ],
-
-      filterMode: "tree",
-      filterSearch: true,
-      onFilter: (value, record) => {
-        const address = record.address;
-        console.log(value, address.split(", "));
-        return address.includes(value);
+      title: "Giới tính",
+      dataIndex: "gender",
+      render: (value) => {
+        return <p>{value === 'male' ? 'Nam' : 'Nữ'}</p>;
       },
-
-      width: "30%",
+      width: "8%",
     },
     {
-      title: "Phân loại",
-      dataIndex: "employee_type",
-      filters: [
-        {
-          text: "Giao dịch",
-          value: "giao dịch",
-        },
-        {
-          text: "Tập kết",
-          value: "tập kết",
-        },
-      ],
-      onFilter: (value, record) => record.employee_type.includes(value),
-      filterSearch: true,
+      title: "Số điện thoại",
+      dataIndex: "phone",
       width: "10%",
     },
-
     {
-      title: "Hành động",
+      title: "Email",
+      dataIndex: "email",
+      width: "15%",
+    },
+    {
+      fixed: "right",
       className: "text-center",
       render: (_, record) => {
         return (
           <Popconfirm
             title="Xác nhận"
+            onConfirm={() => handleDelete(record._id)}
             description="Bạn chắc chắn muốn xóa dữ liệu này?"
             okType="danger"
             okText="Xóa"
@@ -218,12 +214,13 @@ const EmployeeAccountTable = () => {
           </Popconfirm>
         );
       },
-      width: "10%",
+      width: "4%",
     },
   ];
   return (
     <div className="w-full h-full py-4">
       <Table
+        dataSource={employees}
         rowKey={(row) => row.id}
         columns={columns}
         bordered
@@ -240,17 +237,29 @@ const EmployeeAccountTable = () => {
               isModalOpen={isModalOpen}
               setIsModalOpen={setIsModalOpen}
             />
-            <Button
-              onClick={() => setIsModalOpen(true)}
-              icon={<PlusOutlined />}
-              type="primary"
-              size="large"
-            >
-              Thêm nhân viên
-            </Button>
+            <div className="flex items-center gap-x-3">
+              <Upload action={handleUpload} fileList={null}>
+                <Button
+                icon={isLoading ? <LoadingOutlined/> : <PlusOutlined />}
+                type="primary"
+                size="large">
+                Import file
+                </Button>
+              </Upload>
+            
+              <Button
+                onClick={() => setIsModalOpen(true)}
+                icon={<PlusOutlined />}
+                type="primary"
+                size="large">
+                Thêm nhân viên
+              </Button>
+            </div>
           </div>
         )}
       />
+      
+      <span className="text-2xl font-semibold">Điểm {currentUser.role === 'headTransaction' ? 'Giao Dịch' : 'Tập Kết'} {currentUser.workDepartment.address} </span>
     </div>
   );
 };

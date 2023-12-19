@@ -40,10 +40,11 @@ const CreateOrderModal = ({
       current_department: currentUser.workDepartment._id,
       next_department:
         currentUser.workDepartment.linkDepartments[0].departmentId,
-      price: values.orderPrice,
-      weight: values.orderWeight,
-      description: values.orderDescription?.trim(),
+      price: Number(values.orderPrice),
+      weight: Number(values.orderWeight),
       type: values.orderType,
+      description: "Đơn hàng đã được tạo",
+      COD: Number(values.COD),
     };
     console.log("data:", data);
     const res = await createOrder(data);
@@ -82,6 +83,7 @@ const CreateOrderModal = ({
     };
     getTransactionDep();
   }, []);
+
   // Format options for selecting receiver's department
   const transactionDepOptions = transactionDep
     .filter((item) => item._id !== currentUser.workDepartment._id)
@@ -209,10 +211,6 @@ const CreateOrderModal = ({
                     addonAfter="VND"
                     size="large"
                     placeholder="Giá trị đơn hàng"
-                    // formatter={(value) =>
-                    //   `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                    // }
-                    // parser={(value) => value.replace(/\$\s?|(,*)/g, "")}
                     min="0"
                     step="0.0"
                     stringMode
@@ -233,14 +231,19 @@ const CreateOrderModal = ({
                     className="w-full"
                     addonAfter="KG"
                     size="large"
-                    placeholder="Khối lượng đơn hàng"
+                    placeholder="Khối lượng"
                     min="0"
                     step="0.0"
                     stringMode
-                    // formatter={(value) =>
-                    //   `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                    // }
-                    // parser={(value) => value.replace(/\$\s?|(,*)/g, "")}
+                  />
+                </Form.Item>
+                <Form.Item name="COD" className="grow-0">
+                  <InputNumber
+                    size="large"
+                    placeholder="COD"
+                    min="0"
+                    step="0.0"
+                    stringMode
                   />
                 </Form.Item>
               </div>
@@ -281,25 +284,6 @@ const CreateOrderModal = ({
                   />
                 </Form.Item>
               </div>
-              <Form.Item
-                name="orderDescription"
-                rules={[
-                  {
-                    // required: true,
-                    message: "Vui lòng chọn loại hàng hóa",
-                  },
-                ]}
-              >
-                <TextArea
-                  showCount
-                  maxLength={100}
-                  style={{
-                    height: 60,
-                    resize: "none",
-                  }}
-                  placeholder="Mô tả đơn hàng"
-                />
-              </Form.Item>
             </div>
 
             <Form.Item noStyle>

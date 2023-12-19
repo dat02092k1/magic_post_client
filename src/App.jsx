@@ -8,6 +8,7 @@ import SingleSitePage from "./pages/DashBoard/boss/SingleSitePage";
 import GoodsStatsPage from "./pages/DashBoard/boss/GoodsStatsPage";
 import ManageAccountPage from "./pages/DashBoard/headOfSite/ManageAccountPage";
 import GoodsInventoryPage from "./pages/DashBoard/headOfSite/GoodsInventoryPage";
+import SingleEmployeePage from "./pages/DashBoard/headOfSite/SingleEmployeePage"
 import Home from "./pages/Home/Home";
 import Hero from "./components/hero/Hero";
 import ForgetPassword from "./pages/forgetPass/ForgetPassword";
@@ -58,6 +59,10 @@ function App() {
               element={<ManageAccountPage />}
             />
             <Route
+              path="head/manage-account/:id"
+              element={<SingleEmployeePage />}
+            />
+            <Route
               path="head/goods-inventory"
               element={<GoodsInventoryPage />}
             />
@@ -76,6 +81,9 @@ function App() {
             <Route index element={<Hero />} />
             <Route path="/home/login" element={<Login />} />
             <Route path="/home/forget-password" element={<ForgetPassword />} />
+          </Route>
+          <Route path="/home/tracking/:id" element={<Home />}>
+            <Route index element={<Hero />} />
           </Route>
         </Routes>
       </BrowserRouter>

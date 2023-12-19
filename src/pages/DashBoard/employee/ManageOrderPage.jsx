@@ -2,6 +2,7 @@ import { Divider, Typography } from "antd";
 
 import TransactionOrderTable from "../../../components/Staff/transaction/TransactionOrderTable";
 import { useStoreState } from "../../../store/hook";
+import GatheringOrderTable from "../../../components/Staff/gathering/GatheringOrderTable";
 
 const ManageOrderPage = () => {
   const currentUser = useStoreState((state) => state.currentUser);
@@ -15,7 +16,9 @@ const ManageOrderPage = () => {
       <div className="w-full">
         {currentUser?.role === "transactionStaff" ? (
           <TransactionOrderTable />
-        ) : null}
+        ) : (
+          <GatheringOrderTable />
+        )}
       </div>
     </div>
   );
