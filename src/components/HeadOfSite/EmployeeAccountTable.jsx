@@ -3,19 +3,31 @@ import {
   PlusOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
-import { Button, Input, Popconfirm, Space, Table, Typography } from "antd";
-import { useRef, useState } from "react";
+import { Button, Input, Popconfirm, Space, Table, Typography, message } from "antd";
+import { useRef, useState, useEffect } from "react";
 import Highlighter from "react-highlight-words";
-
 import { NavLink } from "react-router-dom";
-
+import { useStoreActions, useStoreState } from "../../store/hook";
 import CreateEmployeeModal from "./CreateEmployeeModal";
+import { deleteEmployee } from "../../repository/employee/employee";
+
 const EmployeeAccountTable = () => {
+  const currentUser = useStoreState((state) => state.currentUser);
+  const [messageApi, contextHolder] = message.useMessage();
   const searchInput = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Get all employees from API
+  const fetchEmployees = useStoreActions((actions) => actions.fetchEmployeesByDepartment);
+
+  useEffect(() => {
+    fetchEmployees(currentUser.workDepartment);
+  }, []);
+  const employees = useStoreState((state) => state.employees);
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
@@ -25,6 +37,21 @@ const EmployeeAccountTable = () => {
   const handleReset = (clearFilters) => {
     clearFilters();
     setSearchText("");
+  };
+  // Handle delete department
+  const handleDelete = async (id) => {
+    setIsLoading(true);
+    try {
+      const res = await deleteEmployee(id);
+      if (res.status === 200) {
+        messageApi.success("Xóa thành công");
+        setIsLoading(false);
+        fetchEmployees(currentUser.workDepartment);
+      }
+    } catch (error) {
+      // console.log(error);
+      messageApi.error("Đã có lỗi xảy ra");
+    }
   };
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({
@@ -120,7 +147,7 @@ const EmployeeAccountTable = () => {
   const columns = [
     {
       title: "STT",
-      dataIndex: "id",
+      dataIndex: "_id",
       width: "6%",
       className: "text-center font-bold",
       sorter: (a, b) => a.id - b.id,
@@ -151,7 +178,7 @@ const EmployeeAccountTable = () => {
 
     {
       title: "Địa chỉ nơi làm việc",
-      dataIndex: "site_address",
+      dataIndex: "departmentId",
       filters: [
         {
           text: "Hồ Chí Minh",
@@ -181,7 +208,7 @@ const EmployeeAccountTable = () => {
     },
     {
       title: "Phân loại",
-      dataIndex: "employee_type",
+      dataIndex: "role",
       filters: [
         {
           text: "Giao dịch",
@@ -204,6 +231,7 @@ const EmployeeAccountTable = () => {
         return (
           <Popconfirm
             title="Xác nhận"
+            onConfirm={() => handleDelete(record._id)}
             description="Bạn chắc chắn muốn xóa dữ liệu này?"
             okType="danger"
             okText="Xóa"
@@ -224,6 +252,7 @@ const EmployeeAccountTable = () => {
   return (
     <div className="w-full h-full py-4">
       <Table
+        dataSource={employees}
         rowKey={(row) => row.id}
         columns={columns}
         bordered

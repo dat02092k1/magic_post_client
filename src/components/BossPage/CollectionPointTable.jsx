@@ -168,7 +168,7 @@ const CollectionPointTable = () => {
     {
       title: "Tên điểm",
       dataIndex: "name",
-      width: "6%",
+      width: "3%",
       render: (value, record) => {
         return (
           <NavLink to={`/boss/manage-sites/${record._id}`}>{value}</NavLink>
@@ -178,32 +178,8 @@ const CollectionPointTable = () => {
     {
       title: "Địa chỉ",
       dataIndex: "address",
-      filters: [
-        {
-          text: "Hồ Chí Minh",
-          value: "Thành phố Hồ Chí Minh",
-          children: [
-            {
-              text: "Quận 1",
-              value: "Quận 1",
-            },
-          ],
-        },
-        {
-          text: "Hà Nội",
-          value: "Thành phố Hà Nội",
-        },
-      ],
 
-      filterMode: "tree",
-      filterSearch: true,
-      onFilter: (value, record) => {
-        const address = record.address;
-
-        return address.toLowerCase().includes(value.toLowerCase());
-      },
-
-      width: "5%",
+      width: "3%",
     },
     {
       title: "Phân loại",
@@ -296,7 +272,7 @@ const CollectionPointTable = () => {
           columns={columns}
           dataSource={departments}
           bordered
-          scroll={{ x: 2000 }}
+          scroll={{ x: 1200 }}
           pagination={{ pageSize: 10 }}
           title={() => (
             <div className="flex items-center justify-between">

@@ -1,10 +1,9 @@
 import { action, persist, createStore, thunk } from 'easy-peasy';
 import { getDepartmentById, getDepartments } from '../repository/department/department';
 import { getUserById } from '../repository/user/user';
+import { getEmployees, getEmployeeByDepartmentId } from '../repository/employee/employee';
 
 export const store = createStore({
-
-
   currentUser: persist({
     loggedIn: false,
     email: '',
@@ -40,6 +39,20 @@ export const store = createStore({
     try {
       const res = await getDepartmentById(id);
       return res.data.data;
+    } catch (error) {
+      console.log(error);
+    }
+  }),
+  employees: [],
+  setEmployees: action((state, employees) => {
+    state.employees = employees;
+  }),
+  
+  fetchEmployeesByDepartment: thunk(async (actions, id) => {
+    try {
+      const res = await getEmployeeByDepartmentId(id);
+      console.log(res);
+      actions.setEmployees(res.data.data.users);
     } catch (error) {
       console.log(error);
     }

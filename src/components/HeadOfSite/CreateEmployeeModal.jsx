@@ -1,20 +1,66 @@
 import { PlusCircleTwoTone } from "@ant-design/icons";
-import { Button, Divider, Form, Input, Modal, Select, Typography } from "antd";
+import { Button, Divider, Form, Input, Modal, Select, Typography, message } from "antd";
 import { useForm } from "antd/es/form/Form";
+import { useState } from "react";
+import { useStoreActions, useStoreState } from "../../store/hook";
+import { createEmployee, getEmployeeById } from "../../repository/employee/employee";
 
 const CreateEmployeeModal = ({ isModalOpen, setIsModalOpen }) => {
   const [form] = useForm();
+  const [messageApi, contextHolder] = message.useMessage();
+  const [isLoading, setIsLoading] = useState(false);
+  const currentUser = useStoreState((state) => state.currentUser);
+  // Get all employees from API
+  const fetchEmployees = useStoreActions((actions) => actions.fetchEmployeesByDepartment);
 
   // Handle modal
   const handleOk = () => {
     setIsModalOpen(false);
     onHandleFinish();
   };
+  
   const handleCancel = () => {
     setIsModalOpen(false);
   };
-  const onHandleFinish = (values) => {
-    console.log(values);
+
+
+  const onHandleFinish = async (values) => {
+    setIsLoading(true);
+    console.log(currentUser);
+    // console.log(values);
+    currentUser.role === "headTransaction"
+      ? (values.role = "transactionStaff")
+      : (values.role = "gatheringStaff");
+    
+    const data = {
+      name: values.employeeName,
+      departmentId: currentUser.workDepartment,
+      email: values.employeeEmail,
+      password: values.employeePassword,
+      role: values.role,
+    };
+    // console.log(data);
+
+    try {
+      const res = await createEmployee(data);
+      if (res.status === 201) {
+        fetchEmployees(currentUser.workDepartment);
+        messageApi.success("Tạo nhân viên thành công");
+        setIsLoading(false);
+        setIsModalOpen(false);
+        form.resetFields();
+      }
+    } catch (error) {
+      if (error.response.data.message === "this user existed") {
+        messageApi.error("Email đã tồn tại");
+      } else if (
+        error.response.data.message === "this gathering point already exists"
+      ) {
+        messageApi.error("Điểm đã tồn tại");
+      } else messageApi.error("Đã có lỗi xảy ra");
+      setIsLoading(false);
+      console.log(error.response.data.message);
+    }
   };
 
   const provinces = [
@@ -84,6 +130,8 @@ const CreateEmployeeModal = ({ isModalOpen, setIsModalOpen }) => {
   ];
 
   return (
+  <>
+    {contextHolder}
     <Modal
       title={
         <>
@@ -157,13 +205,14 @@ const CreateEmployeeModal = ({ isModalOpen, setIsModalOpen }) => {
           </div>
 
           <Form.Item noStyle>
-            <Button type="primary" htmlType="submit" className="float-right">
+            <Button type="primary" htmlType="submit" loading={isLoading} className="float-right">
               Tạo
             </Button>
           </Form.Item>
         </Form>
       </div>
     </Modal>
+  </>
   );
 };
 

@@ -10,6 +10,7 @@ const Login = () => {
   const currentUser = useStoreState((state) => state.currentUser);
   const setUserInfo = useStoreActions((actions) => actions.setUserInfo);
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
   useEffect(() => {
     if (currentUser?.loggedIn) {
@@ -19,28 +20,27 @@ const Login = () => {
 
   const onFinish = async (values) => {
     setIsLoading(true);
-    try {
-      const res = await signin(values.email, values.password);
-      console.log(res);
-      if (res.status === 200) {
-        setUserInfo({
-          role: res.data.user.role,
-          email: res.data.user.email,
-          name: res.data.user.name,
-          loggedIn: true,
-          id: res.data.user._id,
-          workDepartment: res.data.user.departmentId,
-        });
-        setIsLoading(false);
-        navigate("/dashboard");
-      }
-    } catch (error) {
-      console.log(error);
+
+    const res = await signin(values.email, values.password);
+    console.log(res);
+    if (res.status === 200) {
+      setUserInfo({
+        role: res.data.user.role,
+        email: res.data.user.email,
+        name: res.data.user.name,
+        loggedIn: true,
+        id: res.data.user._id,
+        workDepartment: res.data.user.departmentId,
+      });
+      localStorage.setItem("token", res.data.token);
+      setIsLoading(false);
+      navigate("/dashboard");
+    } else {
+      setIsLoading(false);
       messageApi.error("Email đăng nhập hoặc mật khẩu không đúng");
     }
   };
 
-  const [isLoading, setIsLoading] = useState(false);
   return (
     <Container>
       {contextHolder}

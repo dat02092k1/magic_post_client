@@ -42,20 +42,10 @@ function DashBoard() {
   }
   const items = [
     getItem(
-      <NavLink to="/">{"Dashboard"}</NavLink>,
-      "1",
-      <DashboardOutlined />
-    ),
-    getItem(
-      <NavLink to="/inventory">{"Inventory"}</NavLink>,
-      "2",
-      <AppleOutlined />
-    ),
-    getItem(
       "Nhân viên",
       "sub1",
       <AppleOutlined />,
-      [getItem(<NavLink to="/employee/manage-orders">Đơn hàng</NavLink>, "3")],
+      [getItem(<NavLink to="/employee/manage-orders">Đơn hàng</NavLink>, "1")],
       currentUser?.role !== "transactionStaff" &&
         currentUser?.role !== "gatheringStaff"
     ),
@@ -67,11 +57,11 @@ function DashBoard() {
       [
         getItem(
           <NavLink to="/head/manage-accounts">Quản lý tài khoản</NavLink>,
-          "6"
+          "2"
         ),
         getItem(
           <NavLink to="/head/goods-inventory">Thống kê hàng hóa</NavLink>,
-          "7"
+          "3"
         ),
       ],
       currentUser?.role !== "headTransaction" &&
@@ -82,10 +72,10 @@ function DashBoard() {
       "sub3",
       <UserOutlined />,
       [
-        getItem(<NavLink to="/boss/manage-sites">Quản lý điểm</NavLink>, "8"),
+        getItem(<NavLink to="/boss/manage-sites">Quản lý điểm</NavLink>, "4"),
         getItem(
           <NavLink to="/boss/goods-stats">Thống kê hàng hóa</NavLink>,
-          "9"
+          "5"
         ),
       ],
       currentUser?.role !== "admin"

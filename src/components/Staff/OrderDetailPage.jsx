@@ -30,7 +30,7 @@ const OrderDetailPage = () => {
     sender,
     receiver,
     status,
-    description,
+
     weight,
     price,
     type,
@@ -120,12 +120,10 @@ const OrderDetailPage = () => {
     {
       key: "8",
       label: "Địa điểm tiếp theo",
-      children: next_department?.name,
-    },
-    {
-      key: "9",
-      label: "Mô tả",
-      children: description,
+      children:
+        next_department === null
+          ? "Chưa chọn điểm đến tiếp theo"
+          : next_department?.name,
     },
   ];
   return (

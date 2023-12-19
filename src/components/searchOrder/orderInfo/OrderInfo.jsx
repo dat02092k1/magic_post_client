@@ -1,7 +1,8 @@
 import { QRCode } from "antd";
 import OrderInfoTable from "./OrderInfoTable";
 
-const OrderInfo = () => {
+const OrderInfo = (props) => {
+  const { orderInfo } = props;
   return (
     <div className="w-full">
       <div className="mt-[26px] flex justify-between items-center mb-5">
@@ -13,9 +14,9 @@ const OrderInfo = () => {
             Đơn hàng của bạn đang được xử lý, vui lòng đợi đơn vị vận chuyển
           </p>
         </div>
-        <QRCode value="https://www.youtube.com/watch?v=dQw4w9WgXcQ" />
+        <QRCode value={`localhost:5173/home/tracking/${orderInfo?._id}`} />
       </div>
-      <OrderInfoTable />
+      <OrderInfoTable orderInfo={orderInfo} />
     </div>
   );
 };

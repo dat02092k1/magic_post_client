@@ -1,7 +1,7 @@
 import { Avatar, Button, Dropdown, Image, Modal } from "antd";
 import Container from "../Container";
 import { useEffect, useState } from "react";
-import { LogoutOutlined } from "@ant-design/icons";
+import { HomeOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons";
 
 import logo from "../../assets/logo.svg";
 import { useStoreActions, useStoreState } from "../../store/hook";
@@ -105,15 +105,20 @@ const Navbar = ({ handleClick }) => {
                     Số điện thoại <span>0989989989</span>
                   </li>
                 </ul>
-                <h3 className="text-lg">Chức vụ</h3>
+                <h3 className="text-lg">
+                  <UserOutlined className="mr-2" />
+                  Chức vụ
+                </h3>
                 <p>{roleName}</p>
                 {!currentUser?.role.includes("admin") && (
                   <>
                     <h3 className="text-lg">
-                      {currentUser?.role.includes("transaction") ||
+                      {/* {currentUser?.role.includes("transaction") ||
                       currentUser?.role.includes("Transaction")
                         ? "Điểm giao dịch"
-                        : "Điểm tập kết"}
+                        : "Điểm tập kết"} */}
+                      <HomeOutlined className="mr-2" />
+                      {currentUser?.workDepartment?.name}
                     </h3>
                     <p>{currentUser?.workDepartment?.address}</p>
                   </>

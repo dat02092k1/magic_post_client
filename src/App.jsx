@@ -77,6 +77,9 @@ function App() {
             <Route path="/home/login" element={<Login />} />
             <Route path="/home/forget-password" element={<ForgetPassword />} />
           </Route>
+          <Route path="/home/tracking/:id" element={<Home />}>
+            <Route index element={<Hero />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </>
